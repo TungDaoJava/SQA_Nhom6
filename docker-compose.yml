@@ -3,7 +3,7 @@ services:
   # Database Service: PostgreSQL (local)
   # ==============================================================================
   postgres:
-    image: postgres:16-alpine
+    image: public.ecr.aws/docker/library/postgres:16-alpine
     container_name: routine-postgres
     restart: unless-stopped
     environment:

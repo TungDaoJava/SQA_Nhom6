@@ -1,7 +1,7 @@
 # ==========================================
 # Stage 1: Build JAR package
 # ==========================================
-FROM maven:3.9.9-eclipse-temurin-17-alpine AS builder
+FROM public.ecr.aws/docker/library/maven:3.9.9-eclipse-temurin-17-alpine AS builder
 
 WORKDIR /build
 
@@ -16,7 +16,7 @@ RUN mvn clean package -DskipTests -B
 # ==========================================
 # Stage 2: Runtime Image (Lightweight JRE)
 # ==========================================
-FROM eclipse-temurin:17-jre-alpine
+FROM public.ecr.aws/docker/library/eclipse-temurin:17-jre-alpine
 
 LABEL maintainer="routine-dev"
 LABEL description="Routine Fashion E-Commerce Backend Service"

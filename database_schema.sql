@@ -464,7 +464,7 @@ CREATE TABLE phieu_nhap_kho (
 );
 CREATE INDEX idx_ma_phieu_nhap ON phieu_nhap_kho (ma_phieu_nhap);
 CREATE INDEX idx_ngay_nhap ON phieu_nhap_kho (ngay_nhap);
-CREATE INDEX idx_trang_thai ON phieu_nhap_kho (trang_thai);
+CREATE INDEX idx_phieu_nhap_trang_thai ON phieu_nhap_kho (trang_thai);
 CREATE INDEX idx_nha_cung_cap ON phieu_nhap_kho (nha_cung_cap_id);
 COMMENT ON TABLE phieu_nhap_kho IS 'Bảng phiếu nhập kho hàng hóa';
 COMMENT ON COLUMN phieu_nhap_kho.ma_phieu_nhap IS 'Mã phiếu nhập (VD: PNK-20260904-001)';

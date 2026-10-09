@@ -1,7 +1,7 @@
 # ==========================================
 # Stage 1: Build React/Vite Bundle
 # ==========================================
-FROM node:20-alpine AS builder
+FROM public.ecr.aws/docker/library/node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN npm run build
 # ==========================================
 # Stage 2: Serve với Nginx Alpine
 # ==========================================
-FROM nginx:1.27-alpine
+FROM public.ecr.aws/docker/library/nginx:1.27-alpine
 
 LABEL maintainer="routine-dev"
 LABEL description="Routine Fashion Frontend Web Service"
