@@ -11,8 +11,6 @@ RUN npm ci --prefer-offline || npm install
 
 # Sao chép toàn bộ source code and build
 COPY . .
-ARG VITE_API_BASE_URL=/api/v1
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
 # ==========================================
@@ -33,6 +31,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Sao chép các file static HTML/JS/CSS đã build từ Stage 1
 COPY --from=builder /app/dist /usr/share/nginx/html
+COPY docker-entrypoint.d/40-runtime-config.sh /docker-entrypoint.d/40-runtime-config.sh
+RUN chmod +x /docker-entrypoint.d/40-runtime-config.sh
 
 EXPOSE 80
 

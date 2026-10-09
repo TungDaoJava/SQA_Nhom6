@@ -5,8 +5,13 @@ import axios from 'axios';
  * Access token giữ trong bộ nhớ (biến module); refresh token nằm trong
  * httpOnly cookie do backend đặt.
  */
+const runtimeApiBaseUrl = window.__ROUTINE_CONFIG__?.apiBaseUrl;
+const apiBaseUrl =
+  runtimeApiBaseUrl && runtimeApiBaseUrl !== '__VITE_API_BASE_URL__'
+    ? runtimeApiBaseUrl
+    : '/api/v1';
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
+  baseURL: apiBaseUrl,
 });
 
 let accessToken = null;

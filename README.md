@@ -114,7 +114,7 @@ Hệ thống đã được đóng gói toàn diện với Docker. Workflow **Git
 5. **Truy cập hệ thống:**
    - **Giao diện Website & Quản trị**: `http://<IP_SERVER>:5173` (hoặc Port đã cấu hình trong `.env`)
    - **Backend API & Swagger UI**: `http://<IP_SERVER>:8080/swagger-ui.html`
-   - *Lưu ý*: Nginx frontend chỉ phục vụ static files, hỗ trợ SPA routing và nén Gzip. Khi build Docker frontend, đặt `VITE_API_BASE_URL` trỏ tới Backend API (mặc định local là `http://localhost:8080/api/v1`).
+   - *Lưu ý*: Nginx frontend chỉ phục vụ static files, hỗ trợ SPA routing và nén Gzip. Khi chạy container frontend, đặt biến môi trường `VITE_API_BASE_URL` trỏ tới Backend API (mặc định local là `http://localhost:8080/api/v1`).
 
 6. **Cập nhật phiên bản mới khi có code mới:**
    ```bash
