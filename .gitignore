@@ -2,6 +2,11 @@
 backend/target/
 frontend/dist/
 
+# Local secrets/configuration
+.env
+.env.*
+!.env.example
+
 # Dependencies
 frontend/node_modules/
 node_modules/
