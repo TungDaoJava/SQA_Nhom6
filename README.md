@@ -65,9 +65,9 @@ Build production: `npm run build` (kết quả ở `frontend/dist/`).
 
 ## 5. Triển khai bằng Docker & Docker Compose (Server Production)
 
-Hệ thống đã được đóng gói toàn diện với Docker và tích hợp **GitHub Actions CI/CD** tự động build và xuất bản Docker Images lên **GitHub Packages (GHCR - GitHub Container Registry)**:
-- **Backend Image**: `ghcr.io/sanrockk2995/routine-backend:latest`
-- **Frontend Image**: `ghcr.io/sanrockk2995/routine-frontend:latest`
+Hệ thống đã được đóng gói toàn diện với Docker. Workflow **GitHub Actions** được chạy thủ công để build và xuất bản Docker Images lên **GitHub Packages (GHCR - GitHub Container Registry)**:
+- **Backend Image**: `ghcr.io/<repository-owner>/routine-backend:latest`
+- **Frontend Image**: `ghcr.io/<repository-owner>/routine-frontend:latest`
 - **Database**: PostgreSQL chạy cục bộ trong Docker Compose; backend chờ database sẵn sàng trước khi khởi động.
 
 ### 5.1. Yêu cầu trên Server
@@ -78,8 +78,8 @@ Hệ thống đã được đóng gói toàn diện với Docker và tích hợp
 
 1. **Clone repository về server:**
    ```bash
-   git clone https://github.com/sanrockk2995/Do_An_Tot_Nghiep_HTTT.git
-   cd Do_An_Tot_Nghiep_HTTT
+   git clone https://github.com/TungDaoJava/SQA_Nhom6.git
+   cd SQA_Nhom6
    ```
 
 2. **Cấu hình biến môi trường:**
@@ -93,7 +93,7 @@ Hệ thống đã được đóng gói toàn diện với Docker và tích hợp
    - **Cách 1: Kéo trực tiếp Image đã build sẵn từ GitHub Packages (Nhanh nhất, không tốn RAM build trên server):**
      ```bash
      # Đăng nhập GHCR (nếu repo private):
-     # echo $CR_PAT | docker login ghcr.io -u sanrockk2995 --password-stdin
+     # echo $CR_PAT | docker login ghcr.io -u <repository-owner> --password-stdin
      docker compose pull
      docker compose up -d
      ```
@@ -114,7 +114,7 @@ Hệ thống đã được đóng gói toàn diện với Docker và tích hợp
 5. **Truy cập hệ thống:**
    - **Giao diện Website & Quản trị**: `http://<IP_SERVER>:5173` (hoặc Port đã cấu hình trong `.env`)
    - **Backend API & Swagger UI**: `http://<IP_SERVER>:8080/swagger-ui.html`
-   - *Lưu ý*: Nginx frontend đã được cấu hình Reverse Proxy chuyển tiếp toàn bộ yêu cầu `/api/**` về container Backend, đồng thời hỗ trợ SPA routing và nén Gzip.
+   - *Lưu ý*: Nginx frontend chỉ phục vụ static files, hỗ trợ SPA routing và nén Gzip. Khi build Docker frontend, đặt `VITE_API_BASE_URL` trỏ tới Backend API (mặc định local là `http://localhost:8080/api/v1`).
 
 6. **Cập nhật phiên bản mới khi có code mới:**
    ```bash

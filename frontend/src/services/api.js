@@ -6,7 +6,7 @@ import axios from 'axios';
  * httpOnly cookie do backend đặt.
  */
 export const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
 });
 
 let accessToken = null;
