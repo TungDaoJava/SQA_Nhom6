@@ -33,6 +33,13 @@ export default function AdminProductsPage({ salesMode = false, warehouseMode = f
 
   const [editing, setEditing] = useState(null); // null = đóng; { ...readOnly: true/false }
   const [saving, setSaving] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [imageUploading, setImageUploading] = useState(false);
+
+  useEffect(() => () => {
+    if (imagePreview.startsWith('blob:')) URL.revokeObjectURL(imagePreview);
+  }, [imagePreview]);
 
   useEffect(() => {
     api.get('/categories').then((res) => setCategories(res.data || [])).catch(() => {});
@@ -135,6 +142,8 @@ export default function AdminProductsPage({ salesMode = false, warehouseMode = f
 
   function openCreate() {
     setError('');
+    setImageFile(null);
+    setImagePreview('');
     setEditing({
       code: '', name: '', categoryId: '', price: '', costPrice: '', oldPrice: '',
       description: '', imageUrl: '', sku: '', material: '', fit: '', season: '',
@@ -146,12 +155,74 @@ export default function AdminProductsPage({ salesMode = false, warehouseMode = f
 
   function openEdit(p) {
     setError('');
+    setImageFile(null);
+    setImagePreview(p.imageUrl || '');
     setEditing({ ...p, variants: p.variants || [], readOnly: false });
   }
 
   function openView(p) {
     setError('');
+    setImageFile(null);
+    setImagePreview(p.imageUrl || '');
     setEditing({ ...p, variants: p.variants || [], readOnly: true });
+  }
+
+  async function handleImageFileChange(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+    if (!allowedTypes.includes(file.type)) {
+      const msg = 'Chỉ hỗ trợ ảnh JPEG, PNG, WebP hoặc AVIF.';
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+    if (file.size <= 0 || file.size > 10 * 1024 * 1024) {
+      const msg = 'Ảnh phải có dung lượng từ 1 byte đến 10 MB.';
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    const previousImageUrl = editing?.imageUrl || '';
+    setError('');
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setImageUploading(true);
+    try {
+      const { data } = await api.post('/uploads/presign', {
+        contentType: file.type,
+        size: file.size,
+      });
+      const uploadResponse = await fetch(data.uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': data.contentType },
+        body: file,
+      });
+      if (!uploadResponse.ok) {
+        throw new Error('Tải ảnh lên Cloudflare R2 thất bại (HTTP ' + uploadResponse.status + ').');
+      }
+
+      setEditing((current) => current ? { ...current, imageUrl: data.imageUrl } : current);
+      setImagePreview(data.imageUrl);
+      toast.success('Đã tải ảnh lên Cloudflare R2.');
+    } catch (err) {
+      const msg = getErrorMessage(err, 'Tải ảnh lên thất bại. Vui lòng thử lại.');
+      setImageFile(null);
+      setImagePreview(previousImageUrl);
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setImageUploading(false);
+    }
+  }
+
+  function removeProductImage() {
+    setImageFile(null);
+    setImagePreview('');
+    setEditing((current) => current ? { ...current, imageUrl: '' } : current);
   }
 
   async function handleSave(e) {
@@ -160,6 +231,7 @@ export default function AdminProductsPage({ salesMode = false, warehouseMode = f
       setEditing(null);
       return;
     }
+    if (imageUploading) return;
     setSaving(true);
     setError('');
     try {
@@ -440,6 +512,7 @@ export default function AdminProductsPage({ salesMode = false, warehouseMode = f
                 className="btn btn-ghost"
                 onClick={() => setEditing(null)}
                 aria-label="Đóng"
+                disabled={imageUploading || saving}
                 style={{ padding: 6 }}
               >
                 <IconX size={18} />
@@ -541,15 +614,35 @@ export default function AdminProductsPage({ salesMode = false, warehouseMode = f
                     onChange={setField('minStock')}
                   />
                 </div>
-                <div className="field">
-                  <label htmlFor="pf-image">URL hình ảnh</label>
+                <div className="field span-2">
+                  <label htmlFor="pf-image">Tải ảnh sản phẩm lên R2</label>
                   <input
                     id="pf-image"
-                    value={editing.imageUrl ?? ''}
-                    disabled={editing.readOnly}
-                    onChange={setField('imageUrl')}
-                    placeholder="https://..."
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/avif"
+                    disabled={editing.readOnly || imageUploading || saving}
+                    onChange={handleImageFileChange}
                   />
+                  <small className="muted-text">JPEG, PNG, WebP hoặc AVIF · tối đa 10 MB</small>
+                  {imageUploading && <p className="muted-text" role="status">Đang tải ảnh lên Cloudflare R2…</p>}
+                  {imagePreview && (
+                    <div className="image-upload-preview">
+                      <img src={imagePreview} alt="Xem trước ảnh sản phẩm" />
+                      <div>
+                        <span>{imageFile?.name || 'Ảnh hiện tại'}</span>
+                        {!editing.readOnly && (
+                          <button
+                            type="button"
+                            className="btn btn-ghost text-danger"
+                            onClick={removeProductImage}
+                            disabled={imageUploading || saving}
+                          >
+                            Gỡ ảnh
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="field">
                   <label htmlFor="pf-material">Chất liệu</label>
@@ -629,11 +722,11 @@ export default function AdminProductsPage({ salesMode = false, warehouseMode = f
                   </button>
                 ) : (
                   <>
-                    <button type="button" className="btn btn-ghost" onClick={() => setEditing(null)}>
+                    <button type="button" className="btn btn-ghost" onClick={() => setEditing(null)} disabled={imageUploading || saving}>
                       Huỷ
                     </button>
-                    <button type="submit" className="btn btn-primary" disabled={saving}>
-                      {saving ? 'Đang lưu...' : 'Lưu'}
+                    <button type="submit" className="btn btn-primary" disabled={saving || imageUploading}>
+                      {imageUploading ? 'Đang tải ảnh...' : saving ? 'Đang lưu...' : 'Lưu'}
                     </button>
                   </>
                 )}
