@@ -65,9 +65,9 @@ public class ReportService {
     public List<ReportDtos.RevenuePoint> revenueByPeriod(LocalDateTime from, LocalDateTime to, String groupBy) {
         String type = (groupBy != null && !groupBy.isBlank()) ? groupBy.trim().toLowerCase() : "day";
         String pattern = switch (type) {
-            case "month" -> "%Y-%m";
-            case "year" -> "%Y";
-            default -> "%Y-%m-%d";
+            case "month" -> "YYYY-MM";
+            case "year" -> "YYYY";
+            default -> "YYYY-MM-DD";
         };
         List<Object[]> rows = orderRepository.sumRevenueGrouped(pattern, from, to);
         Map<String, ReportDtos.RevenuePoint> existingMap = new LinkedHashMap<>();

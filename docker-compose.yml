@@ -1,32 +1,22 @@
 services:
   # ==============================================================================
-  # Database Service: MySQL 8.0 (Tùy chọn - chỉ chạy khi bật profile "local-db")
-  # Mặc định hệ thống kết nối tới MySQL server dùng chung tại 10.216.1.218.
-  # Nếu muốn chạy MySQL riêng cục bộ trên container, chạy:
-  #   docker compose --profile local-db up -d
-  # và đặt DB_HOST=mysql trong file .env
+  # Database Service: PostgreSQL (local)
   # ==============================================================================
-  mysql:
-    image: mysql:8.0
-    container_name: routine-mysql
-    profiles: ["local-db"]
+  postgres:
+    image: postgres:16-alpine
+    container_name: routine-postgres
     restart: unless-stopped
-    command: >
-      --default-authentication-plugin=mysql_native_password
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
-      MYSQL_DATABASE: ${DB_NAME:-routine_db}
-      MYSQL_USER: ${DB_USER:-sanrockk}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-1}
+      POSTGRES_DB: ${DB_NAME:-routine_db}
+      POSTGRES_USER: ${DB_USER:-routine}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-routine_dev_password}
       TZ: Asia/Ho_Chi_Minh
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "${MYSQL_PORT:-3306}:3306"
+      - "${DB_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-routine} -d ${DB_NAME:-routine_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,28 +26,30 @@ services:
 
   # ==============================================================================
   # Backend Service: Spring Boot 3 + Java 17
-  # Image được build tự động và lưu trên GitHub Packages (ghcr.io)
-  # Kết nối tới MySQL qua biến DB_HOST (mặc định 10.216.1.218)
+  # Image được build từ source local trong ./backend
+  # Kết nối tới PostgreSQL trong mạng Compose
   # ==============================================================================
   backend:
-    image: ghcr.io/sanrockk2995/routine-backend:latest
+    image: routine-backend:local
+    pull_policy: build
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: routine-backend
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      DB_HOST: ${DB_HOST:-10.216.1.218}
-      DB_PORT: ${DB_PORT:-3306}
+      DB_HOST: postgres
+      DB_PORT: 5432
       DB_NAME: ${DB_NAME:-routine_db}
-      DB_USER: ${DB_USER:-sanrockk}
-      DB_PASSWORD: ${DB_PASSWORD:-1}
+      DB_USER: ${DB_USER:-routine}
+      DB_PASSWORD: ${DB_PASSWORD:-routine_dev_password}
       SERVER_PORT: 8080
       JWT_SECRET: ${JWT_SECRET:-RoutineSuperSecretKeyForGraduationProjectChangeMeInProduction20242025ABCDEF}
-      STAFF_IP_WHITELIST: ${STAFF_IP_WHITELIST:-127.0.0.1,::1,10.216.1.0/24,10.216.1.*,*}
-      STAFF_IP_WHITELIST_ENABLED: ${STAFF_IP_WHITELIST_ENABLED:-true}
       TZ: Asia/Ho_Chi_Minh
     ports:
       - "${BACKEND_PORT:-8080}:8080"
@@ -72,10 +64,11 @@ services:
 
   # ==============================================================================
   # Frontend Service: ReactJS + Nginx Alpine (Reverse Proxy /api/ -> Backend)
-  # Image được build tự động và lưu trên GitHub Packages (ghcr.io)
+  # Image được build từ source local trong ./frontend
   # ==============================================================================
   frontend:
-    image: ghcr.io/sanrockk2995/routine-frontend:latest
+    image: routine-frontend:local
+    pull_policy: build
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -92,8 +85,8 @@ services:
 # Persistent Volumes & Networks
 # ==============================================================================
 volumes:
-  mysql_data:
-    name: routine_mysql_data
+  postgres_data:
+    name: routine_postgres_data
 
 networks:
   routine_net:

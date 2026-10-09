@@ -3,11 +3,10 @@ spring:
     name: routine-backend
 
   datasource:
-    # Server MySQL/MariaDB dùng chung: 10.216.1.218 (đổi qua biến môi trường nếu cần)
-    url: jdbc:mysql://${DB_HOST:10.216.1.218}:${DB_PORT:3306}/${DB_NAME:routine_db}?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh
-    username: ${DB_USER:sanrockk}
-    password: ${DB_PASSWORD:1}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:routine_db}
+    username: ${DB_USER:routine}
+    password: ${DB_PASSWORD:routine_dev_password}
+    driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
@@ -19,7 +18,7 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   flyway:
     enabled: true
@@ -46,17 +45,6 @@ app:
     access-token-ttl-minutes: 30
     refresh-token-ttl-days: 7
     refresh-cookie-name: routine_refresh_token
-  cors:
-    allowed-origins: http://localhost:5173,http://localhost:3000,https://routine.hoanguyendev.id.vn,http://[::1]:5173,http://[::1]:3000,http://127.0.0.1:5173,http://127.0.0.1:3000,http://10.216.1.218:5173,http://10.216.1.218:3000,http://10.216.1.50:5173,http://10.216.1.50:3000
-    # true → chấp nhận thêm mọi origin http(s)://<IP> và mọi tên miền (tunnel/LAN)
-    allow-lan: true
-  security:
-    # Danh sách IP được phép đăng nhập hệ thống nội bộ (/auth/login).
-    # Hỗ trợ: IP đơn | dải CIDR 192.168.1.0/24 | khoảng a-b | wildcard 192.168.* | "*" = mọi IP
-    # Đã bổ sung dải mạng ZeroTier One: 10.216.1.0/24, 10.216.1.*
-    staff-ip-whitelist: "${STAFF_IP_WHITELIST:127.0.0.1,::1,10.216.1.0/24,10.216.1.*,*}"
-    staff-ip-whitelist-enabled: ${STAFF_IP_WHITELIST_ENABLED:true}
-
 springdoc:
   api-docs:
     path: /v3/api-docs

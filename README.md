@@ -5,7 +5,7 @@ Hệ thống quản lý cửa hàng bán lẻ thời trang **Routine**, gồm:
 - **Website bán hàng online** cho khách hàng: xem sản phẩm, tìm kiếm, giỏ hàng, yêu thích, đánh giá, đặt hàng, theo dõi đơn.
 - **Hệ thống quản trị nội bộ** cho 4 vai trò nhân sự: Quản lý (ADMIN), Nhân viên bán hàng (SALES_STAFF), Thủ kho (WAREHOUSE_STAFF), Kế toán (ACCOUNTANT) — với POS bán tại quầy, quản lý sản phẩm/kho/kiểm kê/khuyến mãi/NCC/nhân viên và báo cáo doanh thu.
 
-> Kiến trúc: Spring Boot MVC 3 tầng (Controller → Service → Repository/Entity), RESTful `/api/v1/**`, JWT (access + refresh), BCrypt, MySQL + Flyway; frontend ReactJS (React Router theo role, Axios + interceptor tự refresh token, Context API). Toàn bộ giao diện tiếng Việt.
+> Kiến trúc: Spring Boot MVC 3 tầng (Controller → Service → Repository/Entity), RESTful `/api/v1/**`, JWT (access + refresh), BCrypt, PostgreSQL + Flyway; frontend ReactJS (React Router theo role, Axios + interceptor tự refresh token, Context API). Toàn bộ giao diện tiếng Việt.
 
 ---
 
@@ -15,7 +15,7 @@ Hệ thống quản lý cửa hàng bán lẻ thời trang **Routine**, gồm:
 |---|---|
 | Backend | Java 17, Spring Boot 3.3.4 (Web, Data JPA, Security, Validation), Lombok |
 | Bảo mật | JWT HS256 (jjwt 0.12.6): access token 30 phút + refresh token 7 ngày (httpOnly cookie `routine_refresh_token`); BCrypt cho mật khẩu; `@PreAuthorize` phân quyền theo role |
-| CSDL | MySQL 8, Flyway migration (19 bảng đúng đặc tả + dữ liệu mẫu) |
+| CSDL | PostgreSQL 16, Flyway migration (19 bảng đúng đặc tả + dữ liệu mẫu) |
 | API docs | Springdoc OpenAPI (Swagger UI tại `/swagger-ui.html`) |
 | Hóa đơn | OpenPDF — xuất PDF A5 tiếng Việt (font Roboto nhúng) |
 | Frontend | ReactJS 18 (Vite), React Router v6, Axios, Recharts, Context API |
@@ -25,7 +25,7 @@ Hệ thống quản lý cửa hàng bán lẻ thời trang **Routine**, gồm:
 - JDK 17+
 - Maven 3.9+ (đã kèm sẵn trong `tools/apache-maven-3.9.9/` của repo)
 - Node.js 18+ & npm
-- MySQL/MariaDB đang chạy ở `10.216.1.218:3306`, user `sanrockk` / mật khẩu `1` (có thể đổi bằng biến môi trường, xem mục cấu hình)
+- Docker Compose sẽ tự chạy PostgreSQL local trên cổng `5432`; cấu hình trong file `.env` nếu cần.
 
 ## 3. Chạy backend
 
@@ -36,7 +36,7 @@ mvn spring-boot:run
 
 Backend chạy tại **http://localhost:8080**. Lần chạy đầu Flyway sẽ tự:
 
-1. Tạo database `routine_db` (`createDatabaseIfNotExist=true`)
+1. PostgreSQL tạo database `routine_db` khi Compose khởi động
 2. Tạo đủ **19 bảng** (`V1__init_schema.sql`)
 3. Nhập **dữ liệu mẫu** (`V2__seed_data.sql`): tài khoản từng vai trò, 6 danh mục, 9 sản phẩm + 24 biến thể, khách hàng, NCC, khuyến mãi, đơn hàng hoàn tất…
 
@@ -44,8 +44,8 @@ Cấu hình kết nối qua biến môi trường (tuỳ chọn):
 
 | Biến | Mặc định | Ý nghĩa |
 |---|---|---|
-| `DB_HOST` / `DB_PORT` / `DB_NAME` | `10.216.1.218` / `3306` / `routine_db` | Địa chỉ MySQL/MariaDB và tên CSDL |
-| `DB_USER` / `DB_PASSWORD` | `sanrockk` / `1` | Tài khoản MySQL |
+| `DB_PORT` / `DB_NAME` | `5432` / `routine_db` | Cổng PostgreSQL local và tên CSDL |
+| `DB_USER` / `DB_PASSWORD` | `routine` / `routine_dev_password` | Tài khoản PostgreSQL local |
 | `JWT_SECRET` | chuỗi dev mặc định | Khóa ký JWT (khuyến nghị đổi khi triển khai thật) |
 | `SERVER_PORT` | `8080` (trong `application.yml`) | Port backend |
 
@@ -68,7 +68,7 @@ Build production: `npm run build` (kết quả ở `frontend/dist/`).
 Hệ thống đã được đóng gói toàn diện với Docker và tích hợp **GitHub Actions CI/CD** tự động build và xuất bản Docker Images lên **GitHub Packages (GHCR - GitHub Container Registry)**:
 - **Backend Image**: `ghcr.io/sanrockk2995/routine-backend:latest`
 - **Frontend Image**: `ghcr.io/sanrockk2995/routine-frontend:latest`
-- **Database**: Mặc định kết nối trực tiếp MySQL Server tại `10.216.1.218:3306` (hoặc kích hoạt MySQL cục bộ qua profile `local-db`).
+- **Database**: PostgreSQL chạy cục bộ trong Docker Compose; backend chờ database sẵn sàng trước khi khởi động.
 
 ### 5.1. Yêu cầu trên Server
 - Docker Engine (v24+)

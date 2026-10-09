@@ -1,12 +1,10 @@
 package com.routine.controller;
 
 import com.routine.dto.AuthDtos;
-import com.routine.security.IpWhitelistService;
 import com.routine.service.AccountService;
 import com.routine.service.AuthService;
 import com.routine.config.JwtConfig;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,15 +29,10 @@ public class AuthController {
     private final AuthService authService;
     private final AccountService accountService;
     private final JwtConfig jwtConfig;
-    private final IpWhitelistService ipWhitelistService;
-
-    /** Đăng nhập nhân viên (chọn vai trò ở form — role phải khớp DB; chỉ nhận IP trong whitelist). */
+    /** Đăng nhập nhân viên (chọn vai trò ở form — role phải khớp DB). */
     @PostMapping("/login")
     public ResponseEntity<AuthDtos.AuthResponse> staffLogin(
-            @Valid @RequestBody AuthDtos.StaffLoginRequest request,
-            HttpServletRequest httpRequest) {
-        // Chỉ cho phép đăng nhập nội bộ từ các IP trong danh sách cấu hình
-        ipWhitelistService.checkStaffLoginAllowed(httpRequest);
+            @Valid @RequestBody AuthDtos.StaffLoginRequest request) {
         AuthDtos.AuthResponse response = authService.staffLogin(request);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, buildRefreshCookie(response.refreshToken()))

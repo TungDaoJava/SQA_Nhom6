@@ -3,7 +3,7 @@ title ROUTINE Backend - port 8080
 color 0A
 
 rem ============================================================
-rem  Chay BACKEND Spring Boot (ket noi MySQL 10.216.1.218).
+rem  Chay BACKEND Spring Boot (ket noi PostgreSQL local).
 rem  File nay duoc goi boi start-all.bat hoac bam doi truc tiep.
 rem  Dong cua so nay = tat backend.
 rem ============================================================
@@ -23,7 +23,7 @@ if defined JAVA_HOME set "PATH=%JAVA_HOME%\bin;%PATH%"
 echo.
 echo  ============================================
 echo    ROUTINE BACKEND - http://localhost:8080
-echo    DB: routine_db @ 10.216.1.218:3306
+echo    DB: routine_db @ localhost:5432
 echo    Dong cua so nay de TAT backend.
 echo  ============================================
 echo.

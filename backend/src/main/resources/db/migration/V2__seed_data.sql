@@ -74,27 +74,27 @@ INSERT INTO suppliers (ma_ncc, ten_ncc, dia_chi, so_dien_thoai, email, nguoi_lie
 
 -- Khuyến mại mẫu
 INSERT INTO promotions (code, name, description, type, discount_value, max_discount_amount, start_date, end_date, min_order_amount, apply_to_all_products, usage_limit, usage_count, status, created_by) VALUES
-('SALE10',  'Giảm 10% toàn bộ đơn',  'Giảm 10% tối đa 100k cho mọi đơn hàng',  'PERCENT',    10.00,   100000.00, NOW() - INTERVAL 7 DAY, NOW() + INTERVAL 60 DAY, 0,        TRUE,  1000, 0, 'ACTIVE', 1),
-('GIAM50K', 'Giảm trực tiếp 50.000đ','Giảm 50k cho đơn từ 500k',               'FIXED_AMOUNT', 50000.00, NULL,    NOW() - INTERVAL 3 DAY, NOW() + INTERVAL 30 DAY, 500000.00, TRUE,  200,  0, 'ACTIVE', 1);
+('SALE10',  'Giảm 10% toàn bộ đơn',  'Giảm 10% tối đa 100k cho mọi đơn hàng',  'PERCENT',    10.00,   100000.00, CURRENT_TIMESTAMP - INTERVAL '7 days', CURRENT_TIMESTAMP + INTERVAL '60 days', 0,        TRUE,  1000, 0, 'ACTIVE', 1),
+('GIAM50K', 'Giảm trực tiếp 50.000đ','Giảm 50k cho đơn từ 500k',               'FIXED_AMOUNT', 50000.00, NULL,    CURRENT_TIMESTAMP - INTERVAL '3 days', CURRENT_TIMESTAMP + INTERVAL '30 days', 500000.00, TRUE,  200,  0, 'ACTIVE', 1);
 
 -- Đơn hàng mẫu đã hoàn thành (để có dữ liệu báo cáo)
 INSERT INTO orders (order_number, customer_id, subtotal, discount, total, payment_method, status, channel, created_by, notes, delivered_at, stock_deducted, created_at) VALUES
-('HD20250801001', 1, 540000.00, 54000.00, 486000.00, 'CASH',       'COMPLETED', 'OFFLINE', 2, 'Khách mua tại quầy',          NOW() - INTERVAL 23 DAY, TRUE, NOW() - INTERVAL 23 DAY),
-('HD20250805002', 2, 480000.00, 0.00,     480000.00, 'BANK_TRANSFER','COMPLETED','ONLINE',  2, 'Đơn online giao tận nhà',     NOW() - INTERVAL 19 DAY, TRUE, NOW() - INTERVAL 19 DAY),
-('HD20250812003', 3, 970000.00, 100000.00, 870000.00, 'BANK_TRANSFER','COMPLETED','OFFLINE',2, NULL,                          NOW() - INTERVAL 12 DAY, TRUE, NOW() - INTERVAL 12 DAY),
-('HD20250818004', 1, 210000.00, 0.00,     210000.00, 'CASH',        'COMPLETED','OFFLINE', 2, NULL,                          NOW() - INTERVAL 6 DAY,  TRUE, NOW() - INTERVAL 6 DAY),
-('HD20250822005', 3, 1300000.00, 100000.00, 1200000.00,'CASH',       'COMPLETED', 'OFFLINE', 2, 'Mua số lượng lớn',           NOW() - INTERVAL 2 DAY,  TRUE, NOW() - INTERVAL 2 DAY);
+('HD20250801001', 1, 540000.00, 54000.00, 486000.00, 'CASH',       'COMPLETED', 'OFFLINE', 2, 'Khách mua tại quầy',          CURRENT_TIMESTAMP - INTERVAL '23 days', TRUE, CURRENT_TIMESTAMP - INTERVAL '23 days'),
+('HD20250805002', 2, 480000.00, 0.00,     480000.00, 'BANK_TRANSFER','COMPLETED','ONLINE',  2, 'Đơn online giao tận nhà',     CURRENT_TIMESTAMP - INTERVAL '19 days', TRUE, CURRENT_TIMESTAMP - INTERVAL '19 days'),
+('HD20250812003', 3, 970000.00, 100000.00, 870000.00, 'BANK_TRANSFER','COMPLETED','OFFLINE',2, NULL,                          CURRENT_TIMESTAMP - INTERVAL '12 days', TRUE, CURRENT_TIMESTAMP - INTERVAL '12 days'),
+('HD20250818004', 1, 210000.00, 0.00,     210000.00, 'CASH',        'COMPLETED','OFFLINE', 2, NULL,                          CURRENT_TIMESTAMP - INTERVAL '6 days',  TRUE, CURRENT_TIMESTAMP - INTERVAL '6 days'),
+('HD20250822005', 3, 1300000.00, 100000.00, 1200000.00,'CASH',       'COMPLETED', 'OFFLINE', 2, 'Mua số lượng lớn',           CURRENT_TIMESTAMP - INTERVAL '2 days',  TRUE, CURRENT_TIMESTAMP - INTERVAL '2 days');
 
 INSERT INTO order_items (order_id, product_id, product_code, product_name, price, quantity, subtotal, size, color, created_at) VALUES
-(1, 1, 'ASM001', 'Áo sơ mi trắng cơ bản', 350000.00, 1, 350000.00, 'M', 'Trắng',      NOW() - INTERVAL 23 DAY),
-(1, 3, 'ATH001', 'Áo thun đen cổ tròn',   190000.00, 1, 190000.00, 'L', 'Đen',        NOW() - INTERVAL 23 DAY),
-(2, 5, 'QJE001', 'Quần jean xanh basic',  480000.00, 1, 480000.00, '32','Xanh denim', NOW() - INTERVAL 19 DAY),
-(3, 2, 'ASM002', 'Áo sơ mi xanh dương kẻ sọc', 420000.00, 1, 420000.00, 'L', 'Xanh dương', NOW() - INTERVAL 12 DAY),
-(3, 6, 'QJE002', 'Quần jean nữ ống loe',  550000.00, 1, 550000.00, 'M', 'Xanh nhạt',  NOW() - INTERVAL 12 DAY),
-(4, 9, 'ATH002', 'Áo thun trắng in hình', 210000.00, 1, 210000.00, 'M', 'Trắng',      NOW() - INTERVAL 6 DAY),
-(5, 4, 'AKC001', 'Áo khoác jean xanh',    650000.00, 1, 650000.00, 'L', 'Xanh jean',  NOW() - INTERVAL 2 DAY),
-(5, 7, 'VAY001', 'Váy hoa nhí hè',        450000.00, 1, 450000.00, 'M', 'Hoa vàng',   NOW() - INTERVAL 2 DAY),
-(5, 9, 'ATH002', 'Áo thun trắng in hình', 210000.00, 1, 210000.00, 'L', 'Trắng',      NOW() - INTERVAL 2 DAY);
+(1, 1, 'ASM001', 'Áo sơ mi trắng cơ bản', 350000.00, 1, 350000.00, 'M', 'Trắng',      CURRENT_TIMESTAMP - INTERVAL '23 days'),
+(1, 3, 'ATH001', 'Áo thun đen cổ tròn',   190000.00, 1, 190000.00, 'L', 'Đen',        CURRENT_TIMESTAMP - INTERVAL '23 days'),
+(2, 5, 'QJE001', 'Quần jean xanh basic',  480000.00, 1, 480000.00, '32','Xanh denim', CURRENT_TIMESTAMP - INTERVAL '19 days'),
+(3, 2, 'ASM002', 'Áo sơ mi xanh dương kẻ sọc', 420000.00, 1, 420000.00, 'L', 'Xanh dương', CURRENT_TIMESTAMP - INTERVAL '12 days'),
+(3, 6, 'QJE002', 'Quần jean nữ ống loe',  550000.00, 1, 550000.00, 'M', 'Xanh nhạt',  CURRENT_TIMESTAMP - INTERVAL '12 days'),
+(4, 9, 'ATH002', 'Áo thun trắng in hình', 210000.00, 1, 210000.00, 'M', 'Trắng',      CURRENT_TIMESTAMP - INTERVAL '6 days'),
+(5, 4, 'AKC001', 'Áo khoác jean xanh',    650000.00, 1, 650000.00, 'L', 'Xanh jean',  CURRENT_TIMESTAMP - INTERVAL '2 days'),
+(5, 7, 'VAY001', 'Váy hoa nhí hè',        450000.00, 1, 450000.00, 'M', 'Hoa vàng',   CURRENT_TIMESTAMP - INTERVAL '2 days'),
+(5, 9, 'ATH002', 'Áo thun trắng in hình', 210000.00, 1, 210000.00, 'L', 'Trắng',      CURRENT_TIMESTAMP - INTERVAL '2 days');
 
 -- Đánh giá sản phẩm mẫu
 INSERT INTO product_reviews (product_id, customer_id, rating, comment, is_verified) VALUES

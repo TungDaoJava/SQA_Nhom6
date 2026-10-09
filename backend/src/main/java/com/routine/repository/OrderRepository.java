@@ -125,7 +125,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     /** Doanh thu nhóm theo ngày/tháng/năm cho biểu đồ. */
     @Query(value = """
-            SELECT DATE_FORMAT(o.created_at, :pattern) AS period,
+            SELECT TO_CHAR(o.created_at, :pattern) AS period,
                    SUM(o.total) AS revenue,
                    COUNT(*) AS orderCount
             FROM orders o
