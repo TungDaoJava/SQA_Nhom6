@@ -39,3 +39,4 @@ postman/
 data/
 .attach_pid*
 backend/.attach_pid*
+terraform
